@@ -37,11 +37,9 @@ class GetProx(object):
                 req = requests.get('http://www.baidu.com',
                                    proxies={'%s' % (data[2]): '%s://%s:%s'
                                             % (data[2], data[0], data[1])},
-                                   timeout=2, headers=self.header,
-                                   cookies=self.cookie)
+                                   timeout=2, headers=self.header,)
                 if req.status_code == 200:
                     lock.acquire()
-                    print(data)
                     tools.i_ip(data)
                     lock.release()
                 else:

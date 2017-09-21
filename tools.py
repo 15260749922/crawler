@@ -9,7 +9,7 @@ import passwd
 
 
 def get_oneproxie():
-    sql = 'select * from ip_list limit 10'
+    sql = 'select * from ip_list'
     with passwd.connect() as cur:
         cur.execute(sql)
         res = cur.fetchall()
