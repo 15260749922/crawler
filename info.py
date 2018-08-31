@@ -59,11 +59,7 @@ class Info(object):
             tools.i_sab((self.user_sex, self.user_area, self.user_birth,
                          num))
             lock.release()
-<<<<<<< HEAD
             sleep(randint(3, 5))
-=======
-            sleep(randint(3, 7))
->>>>>>> 11c055c6fa8d8669eefaaaaf29d13085ad3e300f
 
     def get_page(self, domain, num):
             if num % 20 == 0:
@@ -72,11 +68,7 @@ class Info(object):
             print(url)
             try:
                 req = requests.get(url, headers=self.header, timeout=5,
-<<<<<<< HEAD
                                    cookies=self.cookie[self.cg_id],)
-=======
-                                   cookies=self.cookie[cg_id],)
->>>>>>> 11c055c6fa8d8669eefaaaaf29d13085ad3e300f
                 soup = BeautifulSoup(req.text, 'lxml')
                 if req.status_code == 200:
                     return soup
