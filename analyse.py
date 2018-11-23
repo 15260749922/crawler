@@ -9,27 +9,24 @@ import numpy as np
 import re
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-from scipy.misc import imread
+from imageio import imread
 
 
 class Analyse(object):
     def __init__(self,):
-        jieba.load_userdict("source/dict.txt")
+        jieba.load_userdict("source/userdict.txt")
 
     def cut_zh(self, sql, cut=False):
         with connect() as cur:
             cur.execute(sql)
             result = cur.fetchall()
-            words = map(lambda word: word[0], result)
-            words = list(words)
+            iterator = map(lambda word: word[0], result)
+            words = list(iterator)
         if cut:
             pattern = re.compile(r'[\u4e00-\u9fa5_a-zA-Z0-9]+')
-            words = re.findall(pattern, str(result))
-            words = ' '.join(words)
-            jieba.load_userdict("source/dict.txt")
-            words = jieba.cut(words)
-            words = filter(lambda word: word != ' ', words)
-            words = list(words)
+            re_words = ' '.join(re.findall(pattern, str(result)))
+            fixed_words = jieba.cut(re_words, cut_all=False)
+            words = list(filter(lambda word: word != ' ', fixed_words))
         return words
 
     def make_df(self, words, stopword=None):
@@ -50,7 +47,7 @@ class Analyse(object):
         bg_pic = imread('source/luhan.jpg')
         wordcloud = WordCloud(background_color='black', max_font_size=110,
                               mask=bg_pic, min_font_size=10, mode='RGBA',
-                              font_path='source/simhei.ttf')
+                             font_path='source/SimHei.ttf')
         word_frequence = {x[0]: x[1] for x in data.values}
         wordcloud = wordcloud.fit_words(word_frequence)
         plt.title(title, fontsize=16)
@@ -186,15 +183,18 @@ if __name__ == "__main__":
     sex = 'select user_sex from luhan_sab'
     comment = 'select user_comment from luhan_inc'
     pro_stop = 'source/province.txt'
+    city_stop = 'source/city.txt'
     com_stop = 'source/com.txt'
     analyse = Analyse()
-    # words = analyse.cut_zh(comment, True)
-    words = analyse.cut_zh(name)
-    # words = analyse.cut_year(birth)
-    analyse.draw_wc(words, None, '昵称分析词云')
-    # analyse.draw_barh(words, None, '评论数前30')
-    # analyse.draw_plot_birth(words, None, '年龄分布折线图')
-    # analyse.draw_bar_bylabel(words, None, '1th-10th分布统计')
-    # analyse.draw_wc(words, com_stop, '评论分析词云')
-    # analyse.draw_barh(words, pro_stop, '城市分布柱状图')
-    # analyse.draw_pie(words, None, '性别分布图')
+    com_words = analyse.cut_zh(comment, True)
+    name_words = analyse.cut_zh(name)
+    sex_words = analyse.cut_zh(sex)
+    area_words = analyse.cut_zh(area, True)
+    year_words = analyse.cut_year(birth)
+    analyse.draw_pie(sex_words, None, '性别饼图')
+    analyse.draw_barh(name_words, None, '评论者前30')
+    analyse.draw_wc(com_words, com_stop, '评论分析词云')
+    analyse.draw_plot_birth(year_words, None, '年龄分布折线图')
+    analyse.draw_bar_bylabel(year_words, None, '1th-10th分布统计')
+    analyse.draw_barh(area_words, pro_stop, '城市分布柱状图')
+    analyse.draw_pie(area_words, city_stop, '地区饼图')
